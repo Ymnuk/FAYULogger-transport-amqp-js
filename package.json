@@ -1,0 +1,35 @@
+{
+  "name": "fayulogger-transport-amqplib",
+  "version": "0.0.1",
+  "description": "Transport for send events (logs) into MQ (amqplib)",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/vows test/*",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ymnuk/FAYULogger-transport-amqp-js.git"
+  },
+  "keywords": [
+    "amqp",
+    "amqplib",
+    "rabbitmq",
+    "log",
+    "logs"
+  ],
+  "author": "Ymnuk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ymnuk/FAYULogger-transport-amqp-js/issues"
+  },
+  "homepage": "https://github.com/Ymnuk/FAYULogger-transport-amqp-js#readme",
+  "dependencies": {
+    "fayulogger": "git+https://github.com/Ymnuk/FAYULogger-js.git",
+    "amqplib": "*",
+    "uuid": "*"
+  },
+  "devDependencies": {
+    "vows": "*"
+  }
+}
