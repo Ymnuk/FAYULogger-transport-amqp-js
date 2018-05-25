@@ -48,7 +48,8 @@ class Sender extends Transport {
         return {
             id: uuid(),
             dt: new Date(),
-            message: msg
+            remoteName: msg.name,
+            message: msg.message
         }
     }
 
@@ -128,7 +129,7 @@ class Sender extends Transport {
 				vhost: this.__vhost
             })
         } catch(e) {
-            await this.stop(e);
+            await this.__stop();
             throw e;
         }
         try {
@@ -149,14 +150,14 @@ class Sender extends Transport {
 				//TODO Like a stream.Writable, a channel will emit 'drain', if it has previously returned false from #publish or #sendToQueue, once its write buffer has been emptied (i.e., once it is ready for writes again).
 			});
 		}catch(e){
-			await this.stop();
+			await this.__stop();
 			throw e;
         }
         
         try {
             this.__channel.assertExchange(this.__exchangeName, 'direct', {durable: false});
         } catch(e) {
-            await this.stop();
+            await this.__stop();
             throw e;
         }
         return true;
@@ -166,14 +167,14 @@ class Sender extends Transport {
      * Закрытие транспорта
      */
     close() {
-        this.stop();
-        super();
+        this.__stop();
+        this.super();
     }
 
     /**
      * Отключение от MQ
      */
-    async stop() {
+    async __stop() {
         this.__channel = null;
         try {
             if(this.__connection != null) {
