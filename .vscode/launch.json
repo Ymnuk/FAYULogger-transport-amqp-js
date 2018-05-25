@@ -7,8 +7,34 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Electron Main",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+            "program": "${workspaceFolder}/main.js",
+            "protocol": "legacy"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Vows Tests",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/vows.cmd",
+            "program": "${workspaceFolder}/test/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch via NPM",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "debug"
+            ],
+            "port": 9229
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Запустить программу",
-            "program": "${workspaceFolder}\\index.js"
+            "program": "${workspaceFolder}\\test\\index.js"
         }
     ]
 }

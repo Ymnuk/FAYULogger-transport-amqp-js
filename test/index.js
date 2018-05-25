@@ -43,8 +43,8 @@ vows
                         })
                         return logger.getModule('test').transports;
                     },
-                    'Verify transport in reveiver': function(topic) {
-                        assert.ok(topic && topic instanceof Array && topic[0] == 'sender');
+                    'Verify transport in receiver': function(topic) {
+                        assert.ok(topic && topic instanceof Array && topic[0] == 'test');
                     }
                 }
             },
@@ -84,28 +84,29 @@ vows
             'Test debug': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('debug', this.callback);
+                    transport.on('debug', msg => this.callback(null, msg));
                     logger.getModule('sender').debug('debug');
                 },
                 'Verify event "debug"': function(topic) {
+                    console.log(topic);
                     assert.equal(topic, 'test: debug');
                 }
             },
             'Test info': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('info', this.callback);
+                    transport.on('info', msg => this.callback(null, msg));
                     logger.getModule('sender').info('info');
                 },
-                'Verify event "debug"': function(topic) {
+                'Verify event "info"': function(topic) {
                     assert.equal(topic, 'test: info');
                 }
             },
             'Test warning': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('warn', this.callback);
-                    logger.getModule('sender').debug('warn');
+                    transport.on('warn', msg => this.callback(null, msg));
+                    logger.getModule('sender').warn('warn');
                 },
                 'Verify event "warn"': function(topic) {
                     assert.equal(topic, 'test: warn');
@@ -114,8 +115,8 @@ vows
             'Test severe': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('severe', this.callback);
-                    logger.getModule('sender').debug('severe');
+                    transport.on('severe', msg => this.callback(null, msg));
+                    logger.getModule('sender').severe('severe');
                 },
                 'Verify event "severe"': function(topic) {
                     assert.equal(topic, 'test: severe');
@@ -124,8 +125,8 @@ vows
             'Test error': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('error', this.callback);
-                    logger.getModule('sender').debug('error');
+                    transport.on('error', msg => this.callback(null, msg));
+                    logger.getModule('sender').error('error');
                 },
                 'Verify event "error"': function(topic) {
                     assert.equal(topic, 'test: error');
@@ -134,8 +135,8 @@ vows
             'Test fatal': {
                 topic: function() {
                     let transport = receiver.logger.getTransport('test');
-                    transport.on('fatal', this.callback);
-                    logger.getModule('sender').debug('fatal');
+                    transport.on('fatal', msg => this.callback(null, msg));
+                    logger.getModule('sender').fatal('fatal');
                 },
                 'Verify event "fatal"': function(topic) {
                     assert.equal(topic, 'test: fatal');
@@ -145,7 +146,7 @@ vows
         .addBatch({
             'Close sender': {
                 topic: function() {
-                    return logger.close();
+                    return logger.free();
                 },
                 'Closed': function(topic) {
                     assert.ok(topic);

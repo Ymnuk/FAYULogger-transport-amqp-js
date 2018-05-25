@@ -4,7 +4,7 @@
   "description": "Transport for send events (logs) into MQ (amqplib)",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/vows test/*",
+    "test": "node_modules/.bin/vows test/* --spec",
     "start": "node index.js"
   },
   "repository": {

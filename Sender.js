@@ -36,7 +36,15 @@ class Sender extends Transport {
         //this.__queueName = options && options.queue ? options.queue : `server-rpc-${uuid()}`;//Название очереди сервера
         this.__exchangeName = options && options.exchange ? options.exchange : 'logs';//Обменник для логов
 		this.__prefetch = options && options.prefetch && typeof(options.prefetch) == 'number' ? options.prefetch : 3;
-		this.__reconnect = options && options.reconnect && typeof(options.reconnect) == 'boolean' ? options.reconnect : false;//Переподключаться, если был разрыв соединения
+        this.__reconnect = options && options.reconnect && typeof(options.reconnect) == 'boolean' ? options.reconnect : false;//Переподключаться, если был разрыв соединения
+        
+        //Прикрепить функции-события
+        this.on('debug', msg => this.__onDebug(msg));
+        this.on('info', msg => this.__onInfo(msg));
+        this.on('warn', msg => this.__onWarn(msg));
+        this.on('severe', msg => this.__onSevere(msg));
+        this.on('error', msg => this.__onError(msg));
+        this.on('fatal', msg => this.__onFatal(msg));
     }
 
     /**
@@ -168,7 +176,7 @@ class Sender extends Transport {
      */
     close() {
         this.__stop();
-        this.super();
+        super.close();
     }
 
     /**

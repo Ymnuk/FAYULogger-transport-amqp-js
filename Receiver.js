@@ -48,7 +48,7 @@ class Receiver {
      */
     close() {
         this.__stop();
-        logger.close();
+        this.__logger.close();
     }
 
     /**
@@ -109,7 +109,8 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}debug`, this.__exchangeName, 'debug')
         this.__channel.consume(`${this.__queuePrefix}debug`, (msg) => {
-            this.__onDebug(msg);
+            this.__onDebug(JSON.parse(msg.content.toString()));
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
@@ -121,6 +122,7 @@ class Receiver {
         this.__channel.bindQueue(`${this.__queuePrefix}info`, this.__exchangeName, 'info')
         this.__channel.consume(`${this.__queuePrefix}info`, (msg) => {
             this.__onInfo(msg);
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
@@ -132,6 +134,7 @@ class Receiver {
         this.__channel.bindQueue(`${this.__queuePrefix}warn`, this.__exchangeName, 'warn')
         this.__channel.consume(`${this.__queuePrefix}warn`, (msg) => {
             this.__onWarn(msg);
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
@@ -143,6 +146,7 @@ class Receiver {
         this.__channel.bindQueue(`${this.__queuePrefix}severe`, this.__exchangeName, 'severe')
         this.__channel.consume(`${this.__queuePrefix}severe`, (msg) => {
             this.__onSevere(msg);
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
@@ -154,6 +158,7 @@ class Receiver {
         this.__channel.bindQueue(`${this.__queuePrefix}error`, this.__exchangeName, 'error')
         this.__channel.consume(`${this.__queuePrefix}error`, (msg) => {
             this.__onError(msg);
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
@@ -163,11 +168,13 @@ class Receiver {
             durable: true
         });
         this.__channel.bindQueue(`${this.__queuePrefix}fatal`, this.__exchangeName, 'fatal')
-        this.__channel.bindQueue(`${this.__queuePrefix}fatal`, (msg) => {
+        this.__channel.consume(`${this.__queuePrefix}fatal`, (msg) => {
             this.__onFatal(msg);
+            this.__channel.ack(msg);
         }, {
             durable: false
         })
+        return true;
     }
 
     /**
@@ -175,8 +182,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onDebug(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].debug(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].debug(msg);
         }
     }
 
@@ -185,8 +192,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onInfo(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].info(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].info(msg);
         }
     }
 
@@ -195,8 +202,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onWarn(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].warn(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].warn(msg);
         }
     }
 
@@ -205,8 +212,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onSevere(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].severe(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].severe(msg);
         }
     }
 
@@ -215,8 +222,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onError(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].error(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].error(msg);
         }
     }
 
@@ -225,8 +232,8 @@ class Receiver {
      * @param {Object} msg Сообщение
      */
     __onFatal(msg) {
-        for(let i = 0; i < this.logger.modules.length; i++) {
-            this.logger.modules[i].fatal(msg);
+        for(let i = 0; i < this.__logger.modules.length; i++) {
+            this.__logger.modules[i].fatal(msg);
         }
     }
 
@@ -242,6 +249,14 @@ class Receiver {
         } finally {
             this.__connection = null;
         }
+    }
+
+    /**
+     * Закрытие слушателя
+     */
+    async close() {
+        await this.__stop();
+        this.__logger.free();
     }
 
 }
