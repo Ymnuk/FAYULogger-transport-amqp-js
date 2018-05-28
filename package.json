@@ -4,7 +4,7 @@
   "description": "Transport for send events (logs) into MQ (amqplib)",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/vows test/* --spec",
+    "test": "node_modules/.bin/vows test/*",
     "start": "node index.js"
   },
   "repository": {
@@ -27,7 +27,8 @@
   "dependencies": {
     "amqplib": "*",
     "fayulogger": "git+https://github.com/Ymnuk/FAYULogger-js.git",
-    "uuid": "*"
+    "uuid": "*",
+    "uuid-validate": "*"
   },
   "devDependencies": {
     "vows": "*"

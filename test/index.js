@@ -88,8 +88,7 @@ vows
                     logger.getModule('sender').debug('debug');
                 },
                 'Verify event "debug"': function(topic) {
-                    console.log(topic);
-                    assert.equal(topic, 'test: debug');
+                    assert.ok(topic.message == 'debug' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
             },
             'Test info': {
@@ -99,7 +98,7 @@ vows
                     logger.getModule('sender').info('info');
                 },
                 'Verify event "info"': function(topic) {
-                    assert.equal(topic, 'test: info');
+                    assert.ok(topic.message == 'info' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
             },
             'Test warning': {
@@ -109,7 +108,7 @@ vows
                     logger.getModule('sender').warn('warn');
                 },
                 'Verify event "warn"': function(topic) {
-                    assert.equal(topic, 'test: warn');
+                    assert.ok(topic.message == 'warn' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
             },
             'Test severe': {
@@ -119,7 +118,7 @@ vows
                     logger.getModule('sender').severe('severe');
                 },
                 'Verify event "severe"': function(topic) {
-                    assert.equal(topic, 'test: severe');
+                    assert.ok(topic.message == 'severe' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
             },
             'Test error': {
@@ -129,7 +128,7 @@ vows
                     logger.getModule('sender').error('error');
                 },
                 'Verify event "error"': function(topic) {
-                    assert.equal(topic, 'test: error');
+                    assert.ok(topic.message == 'error' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
             },
             'Test fatal': {
@@ -139,9 +138,21 @@ vows
                     logger.getModule('sender').fatal('fatal');
                 },
                 'Verify event "fatal"': function(topic) {
-                    assert.equal(topic, 'test: fatal');
+                    assert.ok(topic.message == 'fatal' && topic.name == 'test' && topic.remoteName == 'sender' && topic.dt <= new Date());
                 }
-            },
+            }
+        })
+        .addBatch({
+            'Waiting interval for proceed internal procesed': {
+                topic: function() {
+                    setTimeout(() => {
+                        this.callback()
+                    }, 1000)
+                },
+                'Timeout is OK': function(){
+                    assert.ok(true);
+                }
+            }
         })
         .addBatch({
             'Close sender': {

@@ -2,6 +2,7 @@
 
 const amqplib = require('amqplib');
 const FAYULogger = require('fayulogger');
+const uuidValidate = require('uuid-validate');
 
 /**
  * Класс-сервер для приема сообщений логов из MQ и направление их в логгер на стороне сервера для распределения в других транспорт и дальнейшей обработки
@@ -84,7 +85,7 @@ class Receiver {
 				//TODO если получена ошибка канала
 			});
 			this.__channel.on('return', (msg) => {
-				//console.log(msg.content);
+				console.log(msg.content);
 				//TODO если возвращено сообщение, которое не удалось отправить в очередь
 			});
 			this.__channel.on('drain', () => {
@@ -105,11 +106,12 @@ class Receiver {
         //debug
         await this.__channel.assertQueue(`${this.__queuePrefix}debug`, {
             autoDelete: false,
-            durable: true
+            durable: true,
+            noAck: false
         });
         this.__channel.bindQueue(`${this.__queuePrefix}debug`, this.__exchangeName, 'debug')
         this.__channel.consume(`${this.__queuePrefix}debug`, (msg) => {
-            this.__onDebug(JSON.parse(msg.content.toString()));
+            this.__onDebug(this.__prepareMessage(JSON.parse(msg.content.toString())));
             this.__channel.ack(msg);
         }, {
             durable: false
@@ -121,7 +123,7 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}info`, this.__exchangeName, 'info')
         this.__channel.consume(`${this.__queuePrefix}info`, (msg) => {
-            this.__onInfo(msg);
+            this.__onInfo(this.__prepareMessage(JSON.parse(msg.content.toString())));
             this.__channel.ack(msg);
         }, {
             durable: false
@@ -133,7 +135,7 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}warn`, this.__exchangeName, 'warn')
         this.__channel.consume(`${this.__queuePrefix}warn`, (msg) => {
-            this.__onWarn(msg);
+            this.__onWarn(this.__prepareMessage(JSON.parse(msg.content.toString())));
             this.__channel.ack(msg);
         }, {
             durable: false
@@ -145,7 +147,7 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}severe`, this.__exchangeName, 'severe')
         this.__channel.consume(`${this.__queuePrefix}severe`, (msg) => {
-            this.__onSevere(msg);
+            this.__onSevere(this.__prepareMessage(JSON.parse(msg.content.toString())));
             this.__channel.ack(msg);
         }, {
             durable: false
@@ -157,7 +159,7 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}error`, this.__exchangeName, 'error')
         this.__channel.consume(`${this.__queuePrefix}error`, (msg) => {
-            this.__onError(msg);
+            this.__onError(this.__prepareMessage(JSON.parse(msg.content.toString())));
             this.__channel.ack(msg);
         }, {
             durable: false
@@ -169,12 +171,33 @@ class Receiver {
         });
         this.__channel.bindQueue(`${this.__queuePrefix}fatal`, this.__exchangeName, 'fatal')
         this.__channel.consume(`${this.__queuePrefix}fatal`, (msg) => {
-            this.__onFatal(msg);
-            this.__channel.ack(msg);
+            try {
+                this.__onFatal(this.__prepareMessage(JSON.parse(msg.content.toString())));
+            } finally {
+                this.__channel.ack(msg);
+            }
         }, {
             durable: false
         })
         return true;
+    }
+
+    /**
+     * Восстановление некоторых типов полей
+     * @param {Object} msg Сообщение
+     * @returns Обработанное (подготовленное) сообщение из MQ
+     */
+    __prepareMessage(msg) {
+        if(!uuidValidate(msg.id, 1)) {
+            let err = new Error();
+            err.message = 'Don\'t validated id';
+            throw err;
+        }
+        msg.dt = new Date(msg.dt);
+        if(isNaN(msg.dt.getTime())) {
+            msg.dt = null;
+        }
+        return msg;
     }
 
     /**
